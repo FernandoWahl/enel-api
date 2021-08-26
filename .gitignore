@@ -1,0 +1,6 @@
+src/.vscode/launch.json
+logs
+*.lock
+src/package-lock.json
+node_modules
+upload
