@@ -2,6 +2,7 @@
     "restartable": "rs",
     "ignore": [
       ".git",
+      "swagger_output.json",
       "node_modules/**/node_modules"
     ],
     "verbose": false,

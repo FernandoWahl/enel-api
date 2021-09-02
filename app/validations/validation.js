@@ -1,7 +1,7 @@
-const jwt = require('jsonwebtoken');
-const { check } = require('express-validator');
-const settings = require('../config/config');
-const logger = require('../config/logger');
+const jwt                        = require('jsonwebtoken');
+const { check, validationResult} = require('express-validator');
+const settings                   = require('../config/config');
+const logger                     = require('../config/logger');
 
 module.exports = {
     verifyJWT(req, res, next) {
@@ -19,6 +19,13 @@ module.exports = {
             req.email = decoded.result.email;
             next();
         });
+    },
+    verifyErros(req, res, next) {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+          return res.status(422).json(errors.array());
+        }
+        next();
     }
 }
 
@@ -26,3 +33,5 @@ module.exports.login = [
     check('email').isEmail().not().isEmpty().withMessage('O e-mail é obrigatório!'),
     check('password').not().isEmpty().withMessage('A senha é obrigatória!'),
 ];
+
+

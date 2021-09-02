@@ -4,7 +4,8 @@ module.exports = {
         expiresIn: "48h"
     },
     server: {
-        port:40002
+        port:40002,
+        urlPrefix: '/enel',
     },
     enel: {
         url: "https://portalhome.eneldistribuicaosp.com.br/api",
