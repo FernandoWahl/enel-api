@@ -1,5 +1,3 @@
-const settings   = require('../config/config');
-const logger     = require('../config/logger');
 const axios      = require('axios');
 const capitalize = require('capitalize')
 
@@ -9,15 +7,20 @@ var payload = {
     "I_SSO_GUID": ""
 };
 
-module.exports = {
-    usagehistory: (token) => {
-        return new Promise((resolve, reject) => {
-            logger.debug("controller:usagehistory:token", token);
+/** @param { import('express').Express } app */
+module.exports = app => {
+    var logger = app.middlewares.globals.logger;
 
-            axios.post(settings.enel.url+settings.enel.usagehistory, payload, { headers: { 'Authorization': token } })
+    this.usagehistory = (token) => {
+        return new Promise((resolve, reject) => {
+            logger.debug("service:usagehistory:token", token);
+
+            axios.post("https://portalhome.eneldistribuicaosp.com.br/api/sap/usagehistory", payload, { headers: { 'Authorization': token } })
             .then(function (response) {
+                console.log(response.data);
                 var historicData = response.data.ET_HISTORICO
                 var returnData = {
+                    flag: response.data.E_MSG_BAND, 
                     consumption: response.data.E_MSG_CONSUMO, 
                     amount: response.data.E_MSG_TOTAL, 
                     historic: []
@@ -37,7 +40,10 @@ module.exports = {
                         "valueStax": value.VALOR_STAX,
                         "valueTaxed": value.VALOR_IMPO,
                         "dueDate": value.VENCIMENTO,
-                        "billingPeriod": value.BILLING_PERIOD
+                        "billingPeriod": value.BILLING_PERIOD,
+                        "barcode": value.COD_BARRAS,
+                        "status": value.STATUS,
+                        "statusColor": value.COR,
                     });
                 });
                 resolve(returnData);
@@ -47,13 +53,15 @@ module.exports = {
                 reject({ message: 'Falha ao autenticar o token.' })
             });
         });
-    },
-    portalinfo: (token) => {
-        return new Promise((resolve, reject) => {
-            logger.debug("controller:portalinfo:token", token);
+    }
 
-            axios.post(settings.enel.url+settings.enel.portalinfo, payload, { headers: { 'Authorization': token } })
+    this.bills = (token) => {
+        return new Promise((resolve, reject) => {
+            logger.debug("service:portalinfo:token", token);
+
+            axios.post("https://portalhome.eneldistribuicaosp.com.br/api/sap/portalinfo", payload, { headers: { 'Authorization': token } })
             .then(function (response) {
+                console.log(response.data);
                 var billsData = response.data.ET_CONTAS
                 var returnData = {
                     bills: []
@@ -81,4 +89,6 @@ module.exports = {
             });
         });
     }
+
+    return this;
 };

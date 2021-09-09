@@ -1,0 +1,78 @@
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+  requestBodies:
+    LoginRequest:
+      description: Login request payload
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LoginRequest'
+  schemas:
+    LoginRequest:
+      title: LoginRequest
+      type: object
+      properties:
+        email:
+          type: string
+          description: E-mail
+          format: email
+          example: example@example.com
+        password:
+          type: string
+          description: Password
+          format: password
+          example: 123456
+    TokenResponse:
+      title: TokenResponse
+      type: object
+      properties:
+        token:
+          type: string
+          description: Header Token
+          example: xxxxx.yyyyy.zzzzz
+    VerifyResponse:
+      title: VerifyResponse
+      type: object
+      properties:
+        token:
+          type: string
+          description: Enel Token
+          example: Bearer xxxxx.yyyyy.zzzzz
+        email:
+          type: string
+          description: E-mail
+          format: email
+          example: example@example.com
+        flag:
+          type: string
+          description: Flag
+          example: vermelha
+        name:
+          type: string
+          description: Name
+          example: Paolo
+        lastName:
+          type: string
+          description: Last Name
+          example: Andrade
+        dueDate:
+          type: string
+          description: Due Date
+          example: Dia 15
+        installations:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: Id
+                example: 0069691801
+              address:
+                type: string
+                description: Address
+                example: Av example - example, Sao Paulo - Sp

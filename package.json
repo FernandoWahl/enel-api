@@ -4,8 +4,8 @@
   "description": "Exemplo de microserviço em node",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "nodemon": "nodemon index.js",
+    "start": "node app/index.js",
+    "nodemon": "nodemon app/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "CLI CSF",
@@ -19,7 +19,6 @@
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "express-http-context": "^1.2.3",
-    "express-load": "^1.1.16",
     "express-validator": "^6.1.1",
     "express-winston": "^3.2.1",
     "install": "^0.13.0",

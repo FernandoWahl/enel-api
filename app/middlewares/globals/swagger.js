@@ -20,17 +20,13 @@ module.exports = app => {
                 email: "fernando@fwahl.org",
                 },
             },
-            tags: [
-                { name: "Login" },
-                { name: "Data" }
-            ],
             servers: [
                 {
-                url: "http://localhost:40002/enel/",
+                url: "http://localhost:40002"+process.env.APP_PREFIX,
                 },
             ],
         },
-        apis: ["./app/routes/route.js"],
+        apis: ["./app/routes/*", "./app/@swagger/*"],
     };
 
 
@@ -40,4 +36,6 @@ module.exports = app => {
       swaggerUi.serve,
       swaggerUi.setup(specs)
     );
+
+    return this
 }
