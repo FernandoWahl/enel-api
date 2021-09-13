@@ -33,5 +33,21 @@ module.exports = app => {
             });
     }
 
+    this.getBill = (req, res) => {
+        var token = req.headers['authorization'];
+        var id = req.params.id;
+        logger.debug("controller:bills:id", id);
+        jwt.verifyJwt(token)
+            .then(result => service.getBill(result, id))
+            .then(result => {
+                logger.debug("controller:getBill:result", result);
+                res.status(200).send(result);
+            })
+            .catch(err => {
+                logger.error("controller:getBill:error", err);
+                return res.status(401).send(err);
+            });
+    }
+
     return this
 };

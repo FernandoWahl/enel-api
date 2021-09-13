@@ -76,3 +76,69 @@ components:
                 type: string
                 description: Address
                 example: Av example - example, Sao Paulo - Sp
+    UsagehistoryResponse:
+      title: UsagehistoryResponse
+      type: object
+      properties:
+        flag:
+          type: string
+          description: Flag
+        consumption:
+          type: string
+          description: Consumption
+        amount:
+          type: string
+          description: Amount
+        historic:
+          type: array
+          items:
+            type: object
+            properties:
+              month:
+                type: string
+                description: Month
+              year:
+                type: string
+                description: Year
+              amount:
+                type: number
+                description: Amount
+              amountDay:
+                type: number
+                description: Amount Day
+              valueConsumption:
+                type: number
+                description: Value Consumption
+              valueConsumptionDay:
+                type: number
+                description: Value Consumption Day
+              valueDays:
+                type: number
+                description: Value Days
+              valueDaysFat:
+                type: number
+                description: Value Days Fat
+              valueICMS:
+                type: number
+                description: Value ICMS
+              valueICMSFat:
+                type: number
+                description: Value ICMS Fat
+              valueStax:
+                type: number
+                description: Value Stax
+              dueDate:
+                type: string
+                description: Due Date
+              billingPeriod:
+                type: string
+                description: Billing Period
+              barcode:
+                type: string
+                description: Barcode
+              status:
+                type: string
+                description: Status
+              statusColor:
+                type: string
+                description: Status Color
