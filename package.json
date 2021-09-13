@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node app/index.js",
+    "start_in_docker": "APP_PORT=40002 APP_DEBUG=false APP_PREFIX=/enel APP_LOG_LEVEL=error APP_JWT_SECRET=37e92d6b44c931bdd9f8b6aef2f8f58d node app/index.js",
     "nodemon": "nodemon app/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

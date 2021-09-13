@@ -17,10 +17,10 @@ COPY package*.json ./
 RUN npm config set strict-ssl false
 
 # If you are building your code for production
-RUN npm install --verbose
+RUN npm install --verbose --only=production
 
 # Bundle app source
-COPY . .
+COPY app/ ./app/
 
 EXPOSE 40002
-CMD [ "npm", "start" ]
+CMD [ "npm", "run", "start_in_docker" ]
