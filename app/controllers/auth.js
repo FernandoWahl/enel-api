@@ -3,6 +3,8 @@ const jwt = require('jsonwebtoken');
 module.exports = app => {
     var logger = app.middlewares.globals.logger;
     var service = app.services.auth;
+    var serviceEnel = app.services.enel;
+
 
     this.userAuthentication = (req, res) => {
         logger.debug("controller:userAuthentication:body", req.body);
@@ -14,6 +16,26 @@ module.exports = app => {
             logger.debug("controller:userAuthentication:result", result);
             var token = jwt.sign({ result: result }, process.env.APP_JWT_SECRET, { expiresIn: "48h" });
             res.status(200).send({token: token });
+        })
+        .catch(error => {
+            logger.error("controller:userAuthentication:error", error);
+            return res.status(400).send({message: 'Falha ao autenticar.'});
+        });
+    }
+
+    this.haUserAuthentication = (req, res) => {
+        logger.debug("controller:haUserAuthentication:body", req.body);
+        const email = req.body.email;
+        const password = req.body.password;
+
+        service.login(email, password)
+        .then(login => {
+            logger.debug("controller:haUserAuthentication:result", login);
+            Promise.all([serviceEnel.usagehistory(login.token), serviceEnel.bills(login.token)]).then((values) => {
+                var resultData = Object.assign(login, values[0], values[1]);
+                delete resultData.token;
+                res.status(200).send(resultData);
+            });
         })
         .catch(error => {
             logger.error("controller:userAuthentication:error", error);

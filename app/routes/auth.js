@@ -65,5 +65,7 @@ module.exports = app => {
 	 */
 	app.get(`${prefix}/verify`, validation.verifyJWT, validation.verifyErros, controller.userVerification);
 
+	app.post(`${prefix}/ha/login`, check.login, validation.verifyErros, controller.haUserAuthentication);
+
 	return this
 }
