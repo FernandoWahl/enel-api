@@ -1,5 +1,6 @@
 const axios = require('axios');
 const capitalize = require('capitalize')
+const bwipjs = require('bwip-js');
 
 var payload = {
 	"I_CANAL": "ZINT",
@@ -11,6 +12,25 @@ var payload = {
 module.exports = app => {
 	var logger = app.middlewares.globals.logger;
 
+	var service = this
+
+
+	this.getBarcode = (barcode) => {
+		return new Promise((resolve, reject) => {
+			bwipjs.toBuffer({
+				bcid: 'interleaved2of5',
+				text: barcode,
+				includetext: true,
+				textxalign: 'center',
+			})
+			.then(png => {
+				resolve(`data:image/png;base64,${png.toString('base64')}`)
+			}).catch(err => {
+				reject(err)
+			});
+		});
+	}
+
 	this.usagehistory = (token) => {
 		return new Promise((resolve, reject) => {
 			logger.debug("service:usagehistory:token", token);
@@ -20,7 +40,7 @@ module.exports = app => {
 						'Authorization': token
 					}
 				})
-				.then(function (response) {
+				.then(async function (response) {
 					var historicData = response.data.ET_HISTORICO
 					var returnData = {
 						flag: response.data.E_MSG_BAND,
@@ -28,27 +48,30 @@ module.exports = app => {
 						amount: response.data.E_MSG_TOTAL,
 						historic: []
 					}
-					historicData.forEach(value => {
+					for await (const value of historicData) {
+						var barcodeImage = await service.getBarcode(value.COD_BARRAS);
 						returnData.historic.push({
-							"month": capitalize(value.MES),
-							"year": value.ANO,
-							"amount": value.VALOR_TOTAL,
-							"amountDay": value.VALOR_TOTAL_DIA,
-							"valueConsumption": value.VALOR_CONSUMO,
-							"valueConsumptionDay": value.VALOR_CONSUMO_DIA,
-							"valueDays": value.VALOR_DIAS,
-							"valueDaysFat": value.VALOR_DIAS_FAT,
-							"valueICMS": value.VALOR_ICMS,
-							"valueICMSFat": value.VALOR_ICMS_FAT,
-							"valueStax": value.VALOR_STAX,
-							"valueTaxed": value.VALOR_IMPO,
-							"dueDate": value.VENCIMENTO,
-							"billingPeriod": value.BILLING_PERIOD,
-							"barcode": value.COD_BARRAS,
-							"status": value.STATUS,
-							"statusColor": value.COR,
+							month: capitalize(value.MES),
+							year: value.ANO,
+							amount: value.VALOR_TOTAL,
+							amountDay: value.VALOR_TOTAL_DIA,
+							valueConsumption: value.VALOR_CONSUMO,
+							valueConsumptionDay: value.VALOR_CONSUMO_DIA,
+							valueDays: value.VALOR_DIAS,
+							valueDaysFat: value.VALOR_DIAS_FAT,
+							valueICMS: value.VALOR_ICMS,
+							valueICMSFat: value.VALOR_ICMS_FAT,
+							valueStax: value.VALOR_STAX,
+							valueTaxed: value.VALOR_IMPO,
+							dueDate: value.VENCIMENTO,
+							billingPeriod: value.BILLING_PERIOD,
+							barcode: value.COD_BARRAS,
+							barcodeImg: barcodeImage,
+							status: value.STATUS,
+							statusColor: value.COR,
 						});
-					});
+						
+					}
 					resolve(returnData);
 				})
 				.catch(function (error) {
@@ -120,7 +143,7 @@ module.exports = app => {
                     var billItens = response.data.ET_ITENS_FAT
 					var returnData = {
 						belnr: response.data.I_BELNR,
-						bill: []
+						detail: []
 					}
 
 					billdetails.forEach(bill => {
@@ -132,7 +155,7 @@ module.exports = app => {
                                     value: item.VALOR
                                 }
                             });
-						returnData.bill.push({
+						returnData.detail.push({
 							id: parseInt(bill.CLASSIF),
 							name: bill.DESC_CLASSIF,
 							value: bill.VALOR,
@@ -140,13 +163,29 @@ module.exports = app => {
 						});
 					});
 
-					resolve(returnData);
+					service.bills(token).then(result => {
+						var billFilter = result.bills.find(b => b.belnr == id);
+						bwipjs.toBuffer({
+							bcid: 'interleaved2of5',
+							text: billFilter.barcode.replaceAll(" ", ""),
+							includetext: true,
+							textxalign: 'center',
+						})
+						.then(png => {
+							billFilter.barcodeImg = `data:image/png;base64,${png.toString('base64')}`;
+							resolve(Object.assign(billFilter, returnData));
+						}).catch(err => {
+							logger.error("controller:getBill:error", err);
+							reject({ message: err })
+						});
+					}).catch(err => {
+						logger.error("controller:getBill:error", err);
+						reject({ message: err })
+					});
 				})
-				.catch(function (error) {
-					logger.error("service:portalinfo:error", error);
-					reject({
-						message: 'Falha ao autenticar o token.'
-					})
+				.catch(err => {
+					logger.error("service:portalinfo:error", err);
+					reject({ message: err })
 				});
 
 		});

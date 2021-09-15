@@ -31,8 +31,8 @@ module.exports = app => {
         service.login(email, password)
         .then(login => {
             logger.debug("controller:haUserAuthentication:result", login);
-            Promise.all([serviceEnel.usagehistory(login.token), serviceEnel.bills(login.token)]).then((values) => {
-                var resultData = Object.assign(login, values[0], values[1]);
+            serviceEnel.usagehistory(login.token).then((usagehistory) => {
+                var resultData = Object.assign(login, usagehistory);
                 delete resultData.token;
                 res.status(200).send(resultData);
             });
