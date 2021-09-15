@@ -20,7 +20,7 @@ module.exports = app => {
 			bwipjs.toBuffer({
 				bcid: 'interleaved2of5',
 				text: barcode,
-				includetext: true,
+				includetext: false,
 				textxalign: 'center',
 			})
 			.then(png => {
