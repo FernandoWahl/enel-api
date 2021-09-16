@@ -18,16 +18,16 @@ module.exports = app => {
 	this.getBarcode = (barcode) => {
 		return new Promise((resolve, reject) => {
 			bwipjs.toBuffer({
-				bcid: 'interleaved2of5',
-				text: barcode,
-				includetext: false,
-				textxalign: 'center',
-			})
-			.then(png => {
-				resolve(`data:image/png;base64,${png.toString('base64')}`)
-			}).catch(err => {
-				reject(err)
-			});
+					bcid: 'interleaved2of5',
+					text: barcode,
+					includetext: false,
+					textxalign: 'center',
+				})
+				.then(png => {
+					resolve(`data:image/png;base64,${png.toString('base64')}`)
+				}).catch(err => {
+					reject(err)
+				});
 		});
 	}
 
@@ -48,9 +48,10 @@ module.exports = app => {
 						amount: response.data.E_MSG_TOTAL,
 						historic: []
 					}
+					var historic = [];
 					for await (const value of historicData) {
 						var barcodeImage = await service.getBarcode(value.COD_BARRAS);
-						returnData.historic.push({
+						historic.push({
 							month: capitalize(value.MES),
 							year: value.ANO,
 							amount: value.VALOR_TOTAL,
@@ -63,15 +64,25 @@ module.exports = app => {
 							valueICMSFat: value.VALOR_ICMS_FAT,
 							valueStax: value.VALOR_STAX,
 							valueTaxed: value.VALOR_IMPO,
-							dueDate: value.VENCIMENTO,
+							dueDate: parseInt(value.VENCIMENTO),
 							billingPeriod: value.BILLING_PERIOD,
 							barcode: value.COD_BARRAS,
 							barcodeImg: barcodeImage,
 							status: value.STATUS,
 							statusColor: value.COR,
 						});
-						
+
 					}
+					historic.sort(function (a, b) {
+						if (a.dueDate < b.dueDate) {
+							return 1;
+						}
+						if (a.dueDate > b.dueDate) {
+							return -1;
+						}
+						return 0;
+					});
+					returnData.historic = historic;
 					resolve(returnData);
 				})
 				.catch(function (error) {
@@ -140,52 +151,58 @@ module.exports = app => {
 				})
 				.then((response) => {
 					var billdetails = response.data.ET_COMP_FAT
-                    var billItens = response.data.ET_ITENS_FAT
+					var billItens = response.data.ET_ITENS_FAT
 					var returnData = {
 						belnr: response.data.I_BELNR,
 						detail: []
 					}
 
 					billdetails.forEach(bill => {
-                        var itens = billItens
-                            .filter(item => item.CLASSIF == bill.CLASSIF)
-                            .map(item => {
-                                return {
-                                    name: item.DESC_ITEM,
-                                    value: item.VALOR
-                                }
-                            });
+						var itens = billItens
+							.filter(item => item.CLASSIF == bill.CLASSIF)
+							.map(item => {
+								return {
+									name: item.DESC_ITEM,
+									value: item.VALOR
+								}
+							});
 						returnData.detail.push({
 							id: parseInt(bill.CLASSIF),
 							name: bill.DESC_CLASSIF,
 							value: bill.VALOR,
-                            itemDescribe: itens
+							itemDescribe: itens
 						});
 					});
 
 					service.bills(token).then(result => {
 						var billFilter = result.bills.find(b => b.belnr == id);
 						bwipjs.toBuffer({
-							bcid: 'interleaved2of5',
-							text: billFilter.barcode.replaceAll(" ", ""),
-							includetext: true,
-							textxalign: 'center',
-						})
-						.then(png => {
-							billFilter.barcodeImg = `data:image/png;base64,${png.toString('base64')}`;
-							resolve(Object.assign(billFilter, returnData));
-						}).catch(err => {
-							logger.error("controller:getBill:error", err);
-							reject({ message: err })
-						});
+								bcid: 'interleaved2of5',
+								text: billFilter.barcode.replaceAll(" ", ""),
+								includetext: true,
+								textxalign: 'center',
+							})
+							.then(png => {
+								billFilter.barcodeImg = `data:image/png;base64,${png.toString('base64')}`;
+								resolve(Object.assign(billFilter, returnData));
+							}).catch(err => {
+								logger.error("controller:getBill:error", err);
+								reject({
+									message: err
+								})
+							});
 					}).catch(err => {
 						logger.error("controller:getBill:error", err);
-						reject({ message: err })
+						reject({
+							message: err
+						})
 					});
 				})
 				.catch(err => {
 					logger.error("service:portalinfo:error", err);
-					reject({ message: err })
+					reject({
+						message: err
+					})
 				});
 
 		});
