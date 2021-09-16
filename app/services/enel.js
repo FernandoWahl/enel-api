@@ -208,5 +208,32 @@ module.exports = app => {
 		});
 	}
 
+	this.monthAnalisys = (token) => {
+		return new Promise((resolve, reject) => {
+			logger.debug("service:monthAnalisys:token ", token);
+
+			axios.post("https://portalhome.eneldistribuicaosp.com.br/api/sap/monthAnalisys", payload, {
+					headers: {
+						'Authorization': token
+					}
+				})
+				.then(function (response) {
+					var value = response.data;
+					resolve({
+						monthAnalisys: value.E_MESSAGE,
+						start: value.E_ATUAL_INICIO,
+						end: value.E_ATUAL_FIM,
+						value: value.E_ATUAL_VALOR,
+					});
+				})
+				.catch(function (error) {
+					logger.error("service:monthAnalisys:error", error);
+					reject({
+						message: 'Falha ao autenticar o token.'
+					})
+				});
+		});
+	}
+
 	return this;
 };

@@ -77,5 +77,7 @@ module.exports = app => {
 	 */
 	app.get(`${prefix}/bills/:id([0-9Aa-z]+)`, validation.verifyJWT, validation.verifyErros, controller.getBill);
 
+	app.get(`${prefix}/monthAnalisys`, validation.verifyJWT, validation.verifyErros, controller.monthAnalisys);
+
 	return this;
 }

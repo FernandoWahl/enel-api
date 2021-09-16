@@ -48,5 +48,21 @@ module.exports = app => {
 			});
 	}
 
+
+	this.monthAnalisys = (req, res) => {
+		var token = req.headers['authorization'];
+		logger.debug("controller:monthAnalisys:body", token);
+		jwt.verifyJwt(token)
+			.then(result => service.monthAnalisys(result))
+			.then(result => {
+				logger.debug("controller:monthAnalisys:result", result);
+				res.status(200).send(result);
+			})
+			.catch(err => {
+				logger.error("controller:monthAnalisys:error", err);
+				return res.status(401).send(err);
+			});
+	}
+
 	return this
 };
