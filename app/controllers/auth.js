@@ -7,40 +7,26 @@ module.exports = app => {
 
 
     this.userAuthentication = (req, res) => {
-        logger.debug("controller:userAuthentication:body", req.body);
         const email = req.body.email;
         const password = req.body.password;
 
         service.login(email, password)
-        .then(result => {
-            logger.debug("controller:userAuthentication:result", result);
-            var token = jwt.sign({ result: result }, process.env.APP_JWT_SECRET, { expiresIn: "48h" });
-            res.status(200).send({token: token });
-        })
-        .catch(error => {
-            logger.error("controller:userAuthentication:error", error);
-            return res.status(400).send({message: 'Falha ao autenticar.'});
-        });
+            .then(result => res.status(200).send({token: jwt.sign({ result: result }, process.env.APP_JWT_SECRET, { expiresIn: "48h" }) }))
+            .catch(error => res.status(400).send({message: 'Falha ao autenticar.'}));
     }
 
     this.haUserAuthentication = (req, res) => {
-        logger.debug("controller:haUserAuthentication:body", req.body);
         const email = req.body.email;
         const password = req.body.password;
 
         service.login(email, password)
-        .then(login => {
-            logger.debug("controller:haUserAuthentication:result", login);
+        .then(login => 
             Promise.all([serviceEnel.monthAnalisys(login.token), serviceEnel.usagehistory(login.token)]).then((values) => {
                 var resultData = Object.assign(login, {analisys: values[0]}, values[1]);
                 delete resultData.token;
                 res.status(200).send(resultData);
-            });
-        })
-        .catch(error => {
-            logger.error("controller:userAuthentication:error", error);
-            return res.status(400).send({message: 'Falha ao autenticar.'});
-        });
+            }))
+        .catch(error => res.status(400).send({message: 'Falha ao autenticar.'}));
     }
 
     this.userVerification = (req, res) => {

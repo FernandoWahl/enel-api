@@ -1,239 +1,253 @@
 const axios = require('axios');
 const capitalize = require('capitalize')
-const bwipjs = require('bwip-js');
 
 var payload = {
-	"I_CANAL": "ZINT",
-	"I_COD_SERV": "TC",
-	"I_SSO_GUID": ""
+    "I_CANAL": "ZINT",
+    "I_COD_SERV": "TC",
+    "I_SSO_GUID": ""
 };
+
+var fromTo = {
+    "LEITURA_1": "Conventional",
+    "LEITURA_2": "Peak",
+    "LEITURA_3": "Intermediate",
+    "LEITURA_4": "Off Peak"
+}
+
+var url = "https://portalhome.eneldistribuicaosp.com.br/api/sap"
 
 /** @param { import('express').Express } app */
 module.exports = app => {
-	var logger = app.middlewares.globals.logger;
+    var logger = app.middlewares.globals.logger;
+    var service = this
 
-	var service = this
+    this.usagehistory = (token) => {
+        return new Promise((resolve, reject) => {
+            var usagehistory = axios.post(url + "/usagehistory", payload, {
+                headers: {
+                    'Authorization': token
+                }
+            });
+            
+            var historyinfo = service.historyinfo(token);
 
+            Promise.all([usagehistory, historyinfo]).then(values => {
+                var historyData = values[0].data;
+                var infos = values[1];
+                var historics = historyData.ET_HISTORICO
+                var returnData = {
+                    flag: historyData.E_MSG_BAND,
+                    consumption: historyData.E_MSG_CONSUMO,
+                    amount: historyData.E_MSG_TOTAL,
+                    historic: []
+                }
+                var historic = [];
+                for (const value of historics) {
+                    var ref = value.BILLING_PERIOD.split("/");
+                    var info = infos.find(i => i.yearMonthRef == ref[1] + "/" + ref[0]);
+                    historic.push({
+                        month: capitalize(value.MES),
+                        year: value.ANO,
+                        yearMonthRef: info.yearMonthRef,
+                        whiteTariff: info.whiteTariff,
+                        amount: value.VALOR_TOTAL,
+                        amountDay: value.VALOR_TOTAL_DIA,
+                        valueConsumption: value.VALOR_CONSUMO,
+                        valueConsumptionDay: value.VALOR_CONSUMO_DIA,
+                        valueDays: value.VALOR_DIAS,
+                        valueDaysFat: value.VALOR_DIAS_FAT,
+                        valueICMS: value.VALOR_ICMS,
+                        valueICMSFat: value.VALOR_ICMS_FAT,
+                        valueStax: value.VALOR_STAX,
+                        valueTaxed: value.VALOR_IMPO,
+                        dueDate: parseInt(value.VENCIMENTO),
+                        barcode: value.COD_BARRAS,
+                        status: value.STATUS,
+                        statusColor: value.COR,
+                        consumes: info.consumes
+                    });
 
-	this.getBarcode = (barcode) => {
-		return new Promise((resolve, reject) => {
-			bwipjs.toBuffer({
-					bcid: 'interleaved2of5',
-					text: barcode,
-					includetext: false,
-					textxalign: 'center',
-				})
-				.then(png => {
-					resolve(`data:image/png;base64,${png.toString('base64')}`)
-				}).catch(err => {
-					reject(err)
-				});
-		});
-	}
+                }
+                historic.sort(function (a, b) {
+                    if (a.dueDate < b.dueDate) {
+                        return 1;
+                    }
+                    if (a.dueDate > b.dueDate) {
+                        return -1;
+                    }
+                    return 0;
+                });
+                returnData.historic = historic;
+                resolve(returnData);
+            })
+            .catch(function (error) {
+                logger.error("service:usagehistory:error", error);
+                reject({
+                    message: 'Falha ao autenticar o token.'
+                })
+            });
+        });
+    }
 
-	this.usagehistory = (token) => {
-		return new Promise((resolve, reject) => {
-			logger.debug("service:usagehistory:token", token);
+    this.bills = (token) => {
+        return new Promise((resolve, reject) => {
 
-			axios.post("https://portalhome.eneldistribuicaosp.com.br/api/sap/usagehistory", payload, {
-					headers: {
-						'Authorization': token
-					}
-				})
-				.then(async function (response) {
-					var historicData = response.data.ET_HISTORICO
-					var returnData = {
-						flag: response.data.E_MSG_BAND,
-						consumption: response.data.E_MSG_CONSUMO,
-						amount: response.data.E_MSG_TOTAL,
-						historic: []
-					}
-					var historic = [];
-					for await (const value of historicData) {
-						var barcodeImage = await service.getBarcode(value.COD_BARRAS);
-						historic.push({
-							month: capitalize(value.MES),
-							year: value.ANO,
-							amount: value.VALOR_TOTAL,
-							amountDay: value.VALOR_TOTAL_DIA,
-							valueConsumption: value.VALOR_CONSUMO,
-							valueConsumptionDay: value.VALOR_CONSUMO_DIA,
-							valueDays: value.VALOR_DIAS,
-							valueDaysFat: value.VALOR_DIAS_FAT,
-							valueICMS: value.VALOR_ICMS,
-							valueICMSFat: value.VALOR_ICMS_FAT,
-							valueStax: value.VALOR_STAX,
-							valueTaxed: value.VALOR_IMPO,
-							dueDate: parseInt(value.VENCIMENTO),
-							billingPeriod: value.BILLING_PERIOD,
-							barcode: value.COD_BARRAS,
-							barcodeImg: barcodeImage,
-							status: value.STATUS,
-							statusColor: value.COR,
-						});
+            var portalInfo = axios.post(url + "/portalinfo", payload, {
+                headers: {
+                    'Authorization': token
+                }
+            });
 
-					}
-					historic.sort(function (a, b) {
-						if (a.dueDate < b.dueDate) {
-							return 1;
-						}
-						if (a.dueDate > b.dueDate) {
-							return -1;
-						}
-						return 0;
-					});
-					returnData.historic = historic;
-					resolve(returnData);
-				})
-				.catch(function (error) {
-					logger.error("service:usagehistory:error", error);
-					reject({
-						message: 'Falha ao autenticar o token.'
-					})
-				});
-		});
-	}
+            var historyinfo = service.historyinfo(token);
 
-	this.bills = (token) => {
-		return new Promise((resolve, reject) => {
-			logger.debug("service:bills:token", token);
+            Promise.all([portalInfo, historyinfo]).then(function (values) {
+                var billsData = values[0].data.ET_CONTAS
+                var infos = values[1];
+                billsData = billsData.map(item => {
+                    return Object.assign({
+                        belnr: item.BELNR,
+                        originDoc: item.ORIGEM_DOC,
+                        status: item.SITUACAO,
+                        dueDate: item.VENCIMENTO,
+                        yearMonthRef: item.ANO_MES_REF,
+                        amount: item.MONTANTE,
+                        dateExtension: item.O_DT_PRORROG,
+                        datePayment: item.O_DT_PAGTO,
+                        barcode: item.O_COD_BARRAS,
+                        color: item.COR,
+                    }, infos.find(i => i.yearMonthRef == item.ANO_MES_REF))
+                });
 
-			axios.post("https://portalhome.eneldistribuicaosp.com.br/api/sap/portalinfo", payload, {
-					headers: {
-						'Authorization': token
-					}
-				})
-				.then(function (response) {
-					var billsData = response.data.ET_CONTAS
-					var returnData = {
-						bills: []
-					}
+                resolve({bills: billsData});
+            })
+            .catch(function (error) {
+                logger.error("service:bills:error", error);
+                reject({
+                    message: 'Falha ao autenticar o token.'
+                })
+            });
+        });
+    }
 
-					billsData.forEach(value => {
-						returnData.bills.push({
-							belnr: value.BELNR,
-							originDoc: value.ORIGEM_DOC,
-							status: value.SITUACAO,
-							dueDate: value.VENCIMENTO,
-							yearMonthRef: value.ANO_MES_REF,
-							amount: value.MONTANTE,
-							dateExtension: value.O_DT_PRORROG,
-							datePayment: value.O_DT_PAGTO,
-							barcode: value.O_COD_BARRAS,
-							color: value.COR,
-						});
-					});
-					resolve(returnData);
-				})
-				.catch(function (error) {
-					logger.error("service:bills:error", error);
-					reject({
-						message: 'Falha ao autenticar o token.'
-					})
-				});
-		});
-	}
+    this.historyinfo = (token) => {
+        return new Promise((resolve, reject) => {
+            var body = {
+                "I_CANAL": "ZINT",
+                "I_COD_SERV": "TC",
+                "I_HIST_CONS": "X",
+                "I_SOLIC": "X",
+                "I_NOTIF": "X"
+            };
+            axios.post(url + "/portalhistoryinfo", body, {
+                    headers: {
+                        'Authorization': token
+                    }
+                })
+                .then(function (response) {
+                    var configs = response.data.ET_CONFIG.filter(b => b.GRAFICO == "M");
+                    var data = response.data.ET_HIST_REGISTR;
+                    
+                    resolve(
+                        data.map(item => {
+                            return {
+                                yearMonthRef: item.MESREF,
+                                whiteTariff: Object.entries(item).map(( [k, v] ) =>  k.includes("LEITURA_") && parseInt(k.replace("LEITURA_", "")) > 1 && v > 0).filter(i => i).length != 0,
+                                consumes: configs.map(i => {
+                                    return {
+                                        type: fromTo[i.LEITURA],
+                                        description: i.DESC,
+                                        color: i.COR,
+                                        value: item[i.LEITURA]
+                                    };
+                                })
+                            }
+                        })
+                    );
+                })
+                .catch(function (error) {
+                    logger.error("service:historyinfo:error", error);
+                    reject({
+                        message: 'Falha ao autenticar o token.'
+                    })
+                });
+        });
+    }
 
-	this.getBill = (token, id) => {
-		return new Promise((resolve, reject) => {
-			logger.debug("service:getBill:id", id);
+    this.getBill = (token, id) => {
+        return new Promise((resolve, reject) => {
+            logger.debug("service:getBill:id", id);
 
-			var body = {
-				"I_BELNR": id,
-				"I_CANAL": "ZINT",
-				"I_COD_SERV": "SV"
-			};
+            var body = {
+                "I_BELNR": id,
+                "I_CANAL": "ZINT",
+                "I_COD_SERV": "SV"
+            };
 
-			axios.post("https://portalhome.eneldistribuicaosp.com.br/api/sap/getbilldetail", body, {
-					headers: {
-						'Authorization': token
-					}
-				})
-				.then((response) => {
-					var billdetails = response.data.ET_COMP_FAT
-					var billItens = response.data.ET_ITENS_FAT
-					var returnData = {
-						belnr: response.data.I_BELNR,
-						detail: []
-					}
+            axios.post(url + "/getbilldetail", body, {
+                    headers: {
+                        'Authorization': token
+                    }
+                })
+                .then((response) => {
+                    var billdetails = response.data.ET_COMP_FAT
+                    var billItens = response.data.ET_ITENS_FAT
+                    var returnData = {
+                        belnr: response.data.I_BELNR,
+                        detail: []
+                    }
 
-					billdetails.forEach(bill => {
-						var itens = billItens
-							.filter(item => item.CLASSIF == bill.CLASSIF)
-							.map(item => {
-								return {
-									name: item.DESC_ITEM,
-									value: item.VALOR
-								}
-							});
-						returnData.detail.push({
-							id: parseInt(bill.CLASSIF),
-							name: bill.DESC_CLASSIF,
-							value: bill.VALOR,
-							itemDescribe: itens
-						});
-					});
+                    billdetails.forEach(bill => {
+                        returnData.detail.push({
+                            id: parseInt(bill.CLASSIF),
+                            name: bill.DESC_CLASSIF,
+                            value: bill.VALOR,
+                            itemDescribe: billItens
+                                .filter(item => item.CLASSIF == bill.CLASSIF)
+                                .map(item => {
+                                    return {
+                                        name: item.DESC_ITEM,
+                                        value: item.VALOR
+                                    }
+                                })
+                        });
+                    });
 
-					service.bills(token).then(result => {
-						var billFilter = result.bills.find(b => b.belnr == id);
-						bwipjs.toBuffer({
-								bcid: 'interleaved2of5',
-								text: billFilter.barcode.replaceAll(" ", ""),
-								includetext: true,
-								textxalign: 'center',
-							})
-							.then(png => {
-								billFilter.barcodeImg = `data:image/png;base64,${png.toString('base64')}`;
-								resolve(Object.assign(billFilter, returnData));
-							}).catch(err => {
-								logger.error("controller:getBill:error", err);
-								reject({
-									message: err
-								})
-							});
-					}).catch(err => {
-						logger.error("controller:getBill:error", err);
-						reject({
-							message: err
-						})
-					});
-				})
-				.catch(err => {
-					logger.error("service:portalinfo:error", err);
-					reject({
-						message: err
-					})
-				});
+                    service.bills(token)
+                        .then(result => resolve(Object.assign(result.bills.find(b => b.belnr == id), returnData)))
+                        .catch(err => reject(err));
+                }).catch(err => {
+                    logger.error("service:getBill:error", err);
+                    reject({
+                        message: 'Falha ao autenticar o token.'
+                    })
+                });
 
-		});
-	}
+        });
+    }
 
-	this.monthAnalisys = (token) => {
-		return new Promise((resolve, reject) => {
-			logger.debug("service:monthAnalisys:token ", token);
+    this.monthAnalisys = (token) => {
+        return new Promise((resolve, reject) => {
+            axios.post(url + "/monthAnalisys", payload, {
+                    headers: {
+                        'Authorization': token
+                    }
+                })
+                .then(response =>
+                    resolve({
+                        monthAnalisys: response.data.E_MESSAGE,
+                        start: response.data.E_ATUAL_INICIO,
+                        end: response.data.E_ATUAL_FIM,
+                        value: response.data.E_ATUAL_VALOR,
+                    })
+                )
+                .catch(function (error) {
+                    logger.error("service:monthAnalisys:error", error);
+                    reject({
+                        message: 'Falha ao autenticar o token.'
+                    })
+                });
+        });
+    }
 
-			axios.post("https://portalhome.eneldistribuicaosp.com.br/api/sap/monthAnalisys", payload, {
-					headers: {
-						'Authorization': token
-					}
-				})
-				.then(function (response) {
-					var value = response.data;
-					resolve({
-						monthAnalisys: value.E_MESSAGE,
-						start: value.E_ATUAL_INICIO,
-						end: value.E_ATUAL_FIM,
-						value: value.E_ATUAL_VALOR,
-					});
-				})
-				.catch(function (error) {
-					logger.error("service:monthAnalisys:error", error);
-					reject({
-						message: 'Falha ao autenticar o token.'
-					})
-				});
-		});
-	}
-
-	return this;
+    return this;
 };

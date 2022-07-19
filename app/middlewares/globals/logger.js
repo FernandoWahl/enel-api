@@ -7,11 +7,11 @@ const { combine, timestamp, printf, colorize, json } = winston.format;
 function parseMessage(message, object) {
     if(object){
         if(object instanceof Error) {
-            return  message + object.stack;
+            return  message + " - "  + object.stack;
         } else if(typeof object === 'object' && object !== null){
-            return  message + JSON.stringify(object);
+            return  message + " - " + JSON.stringify(object);
         } else {
-            return  message + object;
+            return  message + " - " + object;
         }
     } else {
         return message;

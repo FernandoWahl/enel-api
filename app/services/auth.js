@@ -14,13 +14,10 @@ module.exports = app => {
             };
 
             enel.firebaseLogin(payload)
-            .then(response => enel.customToken(response))
-            .then(response => enel.getloginv2(response))
-            .then(response => {
-                resolve(response)
-            }).catch(error => {
-                reject(error);
-            })
+                .then(response => enel.customToken(response))
+                .then(response => enel.getloginv2(response))
+                .then(response => resolve(response))
+                .catch(error => reject(error))
         });
     }
     return this

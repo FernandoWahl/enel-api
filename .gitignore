@@ -5,3 +5,4 @@ src/package-lock.json
 node_modules
 upload
 swagger_output.json
+package-lock.json

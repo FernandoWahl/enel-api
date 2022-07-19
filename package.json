@@ -1,6 +1,6 @@
 {
   "name": "arquivo",
-  "version": "1.6.4",
+  "version": "1.6.5",
   "description": "Exemplo de microserviço em node",
   "main": "index.js",
   "scripts": {
@@ -13,7 +13,6 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^0.21.1",
-    "bwip-js": "^3.0.4",
     "capitalize": "^2.0.3",
     "compression": "^1.7.4",
     "consign": "^0.1.6",
