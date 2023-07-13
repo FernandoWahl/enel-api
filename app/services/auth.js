@@ -1,13 +1,13 @@
 
 /** @param { import('express').Express } app */
 module.exports = app => {
-    var enel = app.middlewares.utils.enel;
-    var logger = app.middlewares.globals.logger;
+    let enel = app.middlewares.utils.enel;
+    let logger = app.middlewares.log.logger;
 
     this.login = (email, password) => {
         return new Promise((resolve, reject) => {
             logger.debug("service:login:email", email);
-            var payload = {
+            let payload = {
                 "I_CANAL":"ZINT",
                 "I_EMAIL": email,
                 "I_PASSWORD": password

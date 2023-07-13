@@ -1,12 +1,12 @@
 const jwt = require('jsonwebtoken');
-const { check, validationResult } = require('express-validator');
+const { validationResult } = require('express-validator');
 
 /** @param { import('express').Express } app */
 module.exports = app => {
-	var logger = app.middlewares.globals.logger;
+	let logger = app.middlewares.log.logger;
 
 	this.verifyJWT = (req, res, next) => {
-		var token = req.headers['authorization'];
+		let token = req.headers['authorization'];
 		if (!token) {
 			return res.status(401).send({
 				auth: false,
@@ -20,7 +20,7 @@ module.exports = app => {
 				auth: false,
 				message: 'Failed to authenticate token.'
 			});
-			logger.debug("validations:verifyJWT:user", decoded.result);
+			logger.debug("validations:verifyJWT:user", decoded.result.email);
 			req.token = token;
 			req.user = decoded.result;
 			req.email = decoded.result.email;

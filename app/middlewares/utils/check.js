@@ -8,5 +8,10 @@ module.exports = app => {
 		check('password').not().isEmpty().withMessage('A senha é obrigatória!'),
 	]
 
+	this.changeinstallation = [
+		check('anlage').not().isEmpty().withMessage('O anlage é obrigatório!'),
+		check('vertrag').not().isEmpty().withMessage('A vertrag é obrigatória!'),
+	]
+
     return this
 }

@@ -1,9 +1,19 @@
 module.exports = app => {
-    var jwt = app.middlewares.utils.jwt;
-    var service = app.services.enel;
+    let jwt = app.middlewares.utils.jwt;
+    let service = app.services.enel;
+
+    this.changeinstallation = (req, res) => {
+        let token = req.headers['authorization'];
+        let anlage = req.body.anlage;
+        let vertrag = req.body.vertrag;
+        jwt.verifyJwt(token)
+            .then(result => service.changeinstallation(result, anlage, vertrag))
+            .then(result => res.status(200).send(result))
+            .catch(err => res.status(401).send(err));
+    }
 
     this.usagehistory = (req, res) => {
-        var token = req.headers['authorization'];
+        let token = req.headers['authorization'];
         jwt.verifyJwt(token)
             .then(result => service.usagehistory(result))
             .then(result => res.status(200).send(result))
@@ -11,7 +21,7 @@ module.exports = app => {
     }
 
     this.bills = (req, res) => {
-        var token = req.headers['authorization'];
+        let token = req.headers['authorization'];
         jwt.verifyJwt(token)
             .then(result => service.bills(result))
             .then(result => res.status(200).send(result))
@@ -19,8 +29,8 @@ module.exports = app => {
     }
 
     this.getBill = (req, res) => {
-        var token = req.headers['authorization'];
-        var id = req.params.id;
+        let token = req.headers['authorization'];
+        let id = req.params.id;
         jwt.verifyJwt(token)
             .then(result => service.getBill(result, id))
             .then(result => res.status(200).send(result))
@@ -28,7 +38,7 @@ module.exports = app => {
     }
 
     this.monthAnalisys = (req, res) => {
-        var token = req.headers['authorization'];
+        let token = req.headers['authorization'];
         jwt.verifyJwt(token)
             .then(result => service.monthAnalisys(result))
             .then(result => res.status(200).send(result))

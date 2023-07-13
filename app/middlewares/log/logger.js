@@ -21,7 +21,7 @@ function parseMessage(message, object) {
 
 /** @param { import('express').Express} app */
 module.exports = app => {
-    var winstonLogger = new winston.createLogger({
+    let winstonLogger = new winston.createLogger({
         level: process.env.APP_LOG_LEVEL,
         format: json(),
         transports: [

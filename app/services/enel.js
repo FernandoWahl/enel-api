@@ -1,50 +1,87 @@
-const axios = require('axios');
 const capitalize = require('capitalize')
 
-var payload = {
+let payload = {
     "I_CANAL": "ZINT",
     "I_COD_SERV": "TC",
     "I_SSO_GUID": ""
 };
 
-var fromTo = {
+let fromTo = {
     "LEITURA_1": "Conventional",
     "LEITURA_2": "Peak",
     "LEITURA_3": "Intermediate",
     "LEITURA_4": "Off Peak"
 }
 
-var url = "https://portalhome.eneldistribuicaosp.com.br/api/sap"
+let url = "https://portalhome.eneldistribuicaosp.com.br/api/sap"
 
 /** @param { import('express').Express } app */
 module.exports = app => {
-    var logger = app.middlewares.globals.logger;
-    var service = this
+    let logger = app.middlewares.log.logger;
+    let axios = app.middlewares.globals.axios;
+    let service = this
 
+    this.changeinstallation = (token, anlage, vertrag) => {
+        return new Promise((resolve, reject) => {
+            let body = { 
+                "I_CANAL": "ZINT", 
+                "I_COBRADORA": "", 
+                "I_ANLAGE": anlage, 
+                "I_COD_SERV": "TC", 
+                "I_SERVICO": "A", 
+                "I_VERTRAG": vertrag, 
+                "I_BANDEIRA": "X", 
+                "I_AMBIENTE": "PRD" 
+            };
+            
+            axios.post(url + "/changeinstallation", body, {
+                headers: {
+                    'Authorization': token
+                }
+            })
+            .then(function (response) { 
+                resolve({
+                    "anlage": response.data.E_ANLAGE,
+                    "vertrag": response.data.E_VERTRAG,
+                    "flag": response.data.E_BANDEIRA,
+                    'closed': response.data.E_ENCERRADO === 'X',
+                    'address': response.data.E_ENDERECO,
+                });
+            })
+            .catch(function (error) {
+                logger.error("service:historyinfo:error", error);
+                reject({
+                    message: 'Falha ao autenticar o token.'
+                })
+            });
+            
+        });
+    }
+    
     this.usagehistory = (token) => {
         return new Promise((resolve, reject) => {
-            var usagehistory = axios.post(url + "/usagehistory", payload, {
+            let usagehistory = axios.post(url + "/usagehistory", payload, {
                 headers: {
                     'Authorization': token
                 }
             });
             
-            var historyinfo = service.historyinfo(token);
+            let historyinfo = service.historyinfo(token);
 
             Promise.all([usagehistory, historyinfo]).then(values => {
-                var historyData = values[0].data;
-                var infos = values[1];
-                var historics = historyData.ET_HISTORICO
-                var returnData = {
+                let historyData = values[0].data;
+                let infos = values[1];
+                let historics = historyData.ET_HISTORICO
+                let returnData = {
                     flag: historyData.E_MSG_BAND,
                     consumption: historyData.E_MSG_CONSUMO,
                     amount: historyData.E_MSG_TOTAL,
                     historic: []
                 }
-                var historic = [];
+                let historic = [];
                 for (const value of historics) {
-                    var ref = value.BILLING_PERIOD.split("/");
-                    var info = infos.find(i => i.yearMonthRef == ref[1] + "/" + ref[0]);
+                    let ref = value.BILLING_PERIOD.split("/");
+                    let info = infos.find(i => i.yearMonthRef == ref[1] + "/" + ref[0]);
                     historic.push({
                         month: capitalize(value.MES),
                         year: value.ANO,
@@ -89,49 +126,9 @@ module.exports = app => {
         });
     }
 
-    this.bills = (token) => {
-        return new Promise((resolve, reject) => {
-
-            var portalInfo = axios.post(url + "/portalinfo", payload, {
-                headers: {
-                    'Authorization': token
-                }
-            });
-
-            var historyinfo = service.historyinfo(token);
-
-            Promise.all([portalInfo, historyinfo]).then(function (values) {
-                var billsData = values[0].data.ET_CONTAS
-                var infos = values[1];
-                billsData = billsData.map(item => {
-                    return Object.assign({
-                        belnr: item.BELNR,
-                        originDoc: item.ORIGEM_DOC,
-                        status: item.SITUACAO,
-                        dueDate: item.VENCIMENTO,
-                        yearMonthRef: item.ANO_MES_REF,
-                        amount: item.MONTANTE,
-                        dateExtension: item.O_DT_PRORROG,
-                        datePayment: item.O_DT_PAGTO,
-                        barcode: item.O_COD_BARRAS,
-                        color: item.COR,
-                    }, infos.find(i => i.yearMonthRef == item.ANO_MES_REF))
-                });
-
-                resolve({bills: billsData});
-            })
-            .catch(function (error) {
-                logger.error("service:bills:error", error);
-                reject({
-                    message: 'Falha ao autenticar o token.'
-                })
-            });
-        });
-    }
-
     this.historyinfo = (token) => {
         return new Promise((resolve, reject) => {
-            var body = {
+            let body = {
                 "I_CANAL": "ZINT",
                 "I_COD_SERV": "TC",
                 "I_HIST_CONS": "X",
@@ -144,8 +141,8 @@ module.exports = app => {
                     }
                 })
                 .then(function (response) {
-                    var configs = response.data.ET_CONFIG.filter(b => b.GRAFICO == "M");
-                    var data = response.data.ET_HIST_REGISTR;
+                    let configs = response.data.ET_CONFIG.filter(b => b.GRAFICO == "M");
+                    let data = response.data.ET_HIST_REGISTR;
                     
                     resolve(
                         data.map(item => {
@@ -173,11 +170,51 @@ module.exports = app => {
         });
     }
 
+    this.bills = (token) => {
+        return new Promise((resolve, reject) => {
+
+            let portalInfo = axios.post(url + "/portalinfo", payload, {
+                headers: {
+                    'Authorization': token
+                }
+            });
+
+            let historyinfo = service.historyinfo(token);
+
+            Promise.all([portalInfo, historyinfo]).then(function (values) {
+                let billsData = values[0].data.ET_CONTAS
+                let infos = values[1];
+                billsData = billsData.map(item => {
+                    return Object.assign({
+                        belnr: item.BELNR,
+                        originDoc: item.ORIGEM_DOC,
+                        status: item.SITUACAO,
+                        dueDate: item.VENCIMENTO,
+                        yearMonthRef: item.ANO_MES_REF,
+                        amount: item.MONTANTE,
+                        dateExtension: item.O_DT_PRORROG,
+                        datePayment: item.O_DT_PAGTO,
+                        barcode: item.O_COD_BARRAS,
+                        color: item.COR,
+                    }, infos.find(i => i.yearMonthRef == item.ANO_MES_REF))
+                });
+
+                resolve({bills: billsData});
+            })
+            .catch(function (error) {
+                logger.error("service:bills:error", error);
+                reject({
+                    message: 'Falha ao autenticar o token.'
+                })
+            });
+        });
+    }
+
     this.getBill = (token, id) => {
         return new Promise((resolve, reject) => {
             logger.debug("service:getBill:id", id);
 
-            var body = {
+            let body = {
                 "I_BELNR": id,
                 "I_CANAL": "ZINT",
                 "I_COD_SERV": "SV"
@@ -189,9 +226,9 @@ module.exports = app => {
                     }
                 })
                 .then((response) => {
-                    var billdetails = response.data.ET_COMP_FAT
-                    var billItens = response.data.ET_ITENS_FAT
-                    var returnData = {
+                    let billdetails = response.data.ET_COMP_FAT
+                    let billItens = response.data.ET_ITENS_FAT
+                    let returnData = {
                         belnr: response.data.I_BELNR,
                         detail: []
                     }

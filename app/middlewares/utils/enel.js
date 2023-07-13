@@ -1,10 +1,10 @@
-const axios      = require('axios');
 const capitalize = require('capitalize')
+const axios = require('axios');
 
 /** @param { import('express').Express } app */
 module.exports = app => {
-    var logger = app.middlewares.globals.logger;
-    var enelUtil = this;
+    let logger = app.middlewares.log.logger;
+    let enelUtil = this;
     
     this.firebaseLogin = (payload) => {
         return new Promise((resolve, reject) => {
@@ -21,7 +21,7 @@ module.exports = app => {
     
     this.customToken = (firebaseLoginResponse) => {
         return new Promise((resolve, reject) => {
-            var payload = {
+            let payload = {
                 token: firebaseLoginResponse.token,
                 returnSecureToken: true
             }
@@ -38,7 +38,7 @@ module.exports = app => {
     
     this.getloginv2 = (customTokenResponse) => {
         return new Promise((resolve, reject) => {
-            var payload = {
+            let payload = {
                 "I_CANAL": "ZINT",
                 "I_COBRADORA": "",
                 "I_CPF": "",
@@ -67,7 +67,7 @@ module.exports = app => {
     }
     
     this.getloginv2Parser = (data, token) => {
-        var returnData = {
+        let returnData = {
             token: token,
             email: data.E_EMAIL,
             flag: data.E_BANDEIRA.toLowerCase(),
@@ -76,11 +76,14 @@ module.exports = app => {
             dueDate: capitalize.words(data.E_VENCIMENTO),
             installations: []
         }
-    
         data.ET_INST.forEach(value => {
             returnData.installations.push({
                address: capitalize.words(value.ENDERECO),
-               id: value.ANLAGE,
+               anlage: value.ANLAGE,
+               vertrag: value.VERTRAG,
+               einzdat: value.EINZDAT,
+               auszdat: value.AUSZDAT,
+
             })
         });
         return returnData;
