@@ -1,6 +1,6 @@
 {
   "name": "arquivo",
-  "version": "1.6.5",
+  "version": "1.6.6",
   "description": "Exemplo de microserviço em node",
   "main": "index.js",
   "scripts": {
