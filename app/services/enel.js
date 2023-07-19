@@ -76,6 +76,9 @@ module.exports = app => {
                     flag: historyData.E_MSG_BAND,
                     consumption: historyData.E_MSG_CONSUMO,
                     amount: historyData.E_MSG_TOTAL,
+                    icms: historyData.E_MSG_ICMS,
+                    tax: historyData.E_MSG_JURO,
+                    quantityMonths: historyData.E_QTD_MESES,
                     historic: []
                 }
                 let historic = [];
@@ -83,6 +86,9 @@ module.exports = app => {
                     let ref = value.BILLING_PERIOD.split("/");
                     let info = infos.find(i => i.yearMonthRef == ref[1] + "/" + ref[0]);
                     historic.push({
+                        anlage: value.ANLAGE,
+                        vertrag: value.VERTRAG,
+                        belnr: value.BELNR,
                         month: capitalize(value.MES),
                         year: value.ANO,
                         yearMonthRef: info.yearMonthRef,
