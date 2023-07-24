@@ -1,5 +1,3 @@
-require('dotenv').config()
-
 const jwt = require('jsonwebtoken');
 
 /** @param { import('express').Express } app */

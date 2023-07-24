@@ -13,8 +13,8 @@ module.exports = app => {
                     resolve(response.data);
                 })
                 .catch(function (error) {
-                    logger.error("service:firebaseLogin:error", error);
-                    reject(error)
+                    logger.error("service:firebaseLogin:error", error?.message || error);
+                    reject(error?.message || error)
                 });
         });
     };
@@ -30,8 +30,8 @@ module.exports = app => {
                     resolve(response.data);
                 })
                 .catch(function (error) {
-                    logger.error("service:customToken:error", error);
-                    reject(error)
+                    logger.error("service:customToken:error",  error?.message || error);
+                    reject(error?.message || error)
                 });
         });
     };
@@ -60,8 +60,8 @@ module.exports = app => {
                     resolve(enelUtil.getloginv2Parser(response.data, response.headers.authorization));
                 })
                 .catch(function (error) {
-                    logger.error("service:getloginv2:error", error);
-                    reject(error)
+                    logger.error("service:getloginv2:error", error?.message || error);
+                    reject(error?.message || error)
                 });
         });
     }

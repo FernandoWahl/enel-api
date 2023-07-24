@@ -4,34 +4,32 @@
   "description": "Exemplo de microserviço em node",
   "main": "index.js",
   "scripts": {
-    "start": "node app/index.js",
-    "start_in_docker": "APP_PORT=40002 APP_DEBUG=false APP_PREFIX=/enel APP_LOG_LEVEL=error APP_JWT_SECRET=37e92d6b44c931bdd9f8b6aef2f8f58d node app/index.js",
-    "nodemon": "nodemon app/index.js",
+    "start": "APP_PORT=40002 APP_DEBUG=true APP_PREFIX=/enel APP_LOG_LEVEL=debug APP_JWT_SECRET=37e92d6b44c931bdd9f8b6aef2f8f58d NODE_ENV=production node app/index.js",
+    "nodemon": "APP_PORT=40002 APP_DEBUG=true APP_PREFIX=/enel APP_LOG_LEVEL=debug APP_JWT_SECRET=37e92d6b44c931bdd9f8b6aef2f8f58d NODE_ENV=development nodemon app/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "CLI CSF",
   "license": "ISC",
   "dependencies": {
     "@tictactrip/axios-redis": "^2.0.0",
-    "axios": "^0.21.1",
-    "capitalize": "^2.0.3",
+    "axios": "^1.4.0",
+    "capitalize": "^2.0.4",
     "compression": "^1.7.4",
     "consign": "^0.1.6",
     "cors": "^2.8.5",
-    "dotenv": "^10.0.0",
-    "express": "^4.17.1",
-    "express-http-context": "^1.2.3",
+    "express": "^4.18.2",
+    "express-http-context": "^1.2.4",
     "express-validator": "^6.1.1",
     "express-winston": "^3.2.1",
     "install": "^0.13.0",
     "jsonwebtoken": "^8.5.1",
-    "moment": "^2.24.0",
-    "nodemon": "^2.0.8",
-    "npm": "^6.12.1",
-    "redis": "^4.2.0",
+    "moment": "^2.29.4",
+    "mqtt": "^4.3.7",
     "sha.js": "^2.4.11",
-    "uuid": "^3.3.3",
-    "winston": "^3.2.1",
+    "winston": "^3.10.0",
     "yamljs": "^0.3.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.8"
   }
 }

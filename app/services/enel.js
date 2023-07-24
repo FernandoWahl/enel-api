@@ -178,7 +178,6 @@ module.exports = app => {
 
     this.bills = (token) => {
         return new Promise((resolve, reject) => {
-
             let portalInfo = axios.post(url + "/portalinfo", payload, {
                 headers: {
                     'Authorization': token
@@ -257,9 +256,9 @@ module.exports = app => {
 
                     service.bills(token)
                         .then(result => resolve(Object.assign(result.bills.find(b => b.belnr == id), returnData)))
-                        .catch(err => reject(err));
-                }).catch(err => {
-                    logger.error("service:getBill:error", err);
+                        .catch(error => reject(error?.message || error));
+                }).catch(error => {
+                    logger.error("service:getBill:error", error?.message || error);
                     reject({
                         message: 'Falha ao autenticar o token.'
                     })

@@ -1,27 +1,28 @@
-FROM node:14-alpine
+ARG BUILD_FROM
+FROM $BUILD_FROM
 
-# Create app directory
-WORKDIR /usr/src/Enel-Service
+ENV LANG C.UTF-8
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-ENV TZ=America/Sao_Paulo
-RUN apk add tzdata
-RUN cp /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-
-#RUN apk add nodejs
-
-# Install app dependencies
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
-# where available (npm@5+)
-COPY package*.json ./
+RUN apk add --no-cache \
+    nodejs \
+    npm \
+    git
 
 RUN npm config set strict-ssl false
 
-# If you are building your code for production
-RUN npm install --verbose --only=production
+COPY package*.json ./app/
+COPY nodemon.json ./app/
 
-# Bundle app source
-COPY app/ ./app/
+RUN cd /app && npm install --verbose --only=production --unsafe-perm
 
+COPY app/ ./app/app/
+
+WORKDIR /app
 EXPOSE 40002
-#CMD [ "node", "--version" ]
-CMD [ "npm", "run", "start_in_docker" ]
+
+# Copy data for add-on
+COPY run.sh /
+RUN chmod a+x /run.sh
+
+CMD [ "/run.sh" ]

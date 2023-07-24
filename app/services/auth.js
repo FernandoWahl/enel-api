@@ -17,7 +17,7 @@ module.exports = app => {
                 .then(response => enel.customToken(response))
                 .then(response => enel.getloginv2(response))
                 .then(response => resolve(response))
-                .catch(error => reject(error))
+                .catch(error => reject(error?.message || error))
         });
     }
     return this

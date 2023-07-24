@@ -1,4 +1,3 @@
-require('dotenv').config()
 const express = require('express')
 const consign = require('consign')
 const app = express()
@@ -11,15 +10,18 @@ consign({
 		locale: 'pt-br'
 	})
     .include('./middlewares/log')
-	.include('./middlewares/connections')
     .then('./middlewares/globals')
     .then('./middlewares/utils')
 	.then('./services')
 	.then('./controllers')
 	.then('./routes')
+	.then('./hassio/config')
+	.then('./hassio/connections')
+	.then('./hassio')
 	.into(app)
 
-var logger = app.middlewares.log.logger;
+let logger = app.middlewares.log.logger;
+
 app.listen(process.env.APP_PORT || 40002, () => {
 	logger.debug(`Server running on http://localhost:${process.env.APP_PORT}`);
 	logger.debug(`GET http://localhost:${process.env.APP_PORT}${process.env.APP_PREFIX}`);
