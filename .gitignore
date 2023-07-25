@@ -6,3 +6,4 @@ node_modules
 upload
 swagger_output.json
 package-lock.json
+options-mock.json

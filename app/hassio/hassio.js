@@ -11,26 +11,33 @@ module.exports = app => {
         logger.debug(`MQTT Connected success!`);
 
         const update = (retries = 0) => {
-            try {
-                logger.debug(`hassio:update retries=${retries}`)
-                enelApi.loginAndInstalation()
-                    .then(result => shareData.setLogin(result))
-                    .then(result => enelApi.getAllData(result.token))
-                    .then(result => shareData.setData(result))
-                    .then(() => device.updateParameters())
-                    .catch(error => {
-                        throw error;
-                    });
-            } catch (error) {
-                logger.error(`hassio:update:error`, error?.message || error)
-                if (retries < 5){
-                    return setTimeout(() => {
-                        update(retries + 1)
-                    }, 1000 * (retries + 1))
-                } else {
-                    device.updateDeviceState(false)
-                }
-            }
+            logger.debug(`hassio:update retries=${retries}`)
+            enelApi.loginAndInstalation()
+                .then(result => shareData.setLogin(result))
+                .then(result => enelApi.getAllData(result.token))
+                .then(result => shareData.setData(result))
+                .then(() => device.updateParameters())
+                .catch(error => {
+                    if (error && error.instalation) {
+                        console.log("")
+                        console.log("-----------------------------------------------------------------------------------------------------------------")
+                        console.log(`Nenhuma instalação selecionada, escolha entre a seguintes opções:`)
+                        console.log("-----------------------------------------------------------------------------------------------------------------")
+                        error.installations.forEach(installation => {
+                            console.log(`${installation.anlage} - Endereço: ${installation.address}`)
+                        });
+                        console.log("-----------------------------------------------------------------------------------------------------------------")
+                        return;
+                    }
+                    if (retries < 5) {
+                        return setTimeout(() => {
+                            update(retries + 1)
+                        }, 10000 * (retries + 1))
+                    } else {
+                        device.updateDeviceState(false)
+                    }
+                });
+
         }
         update()
         setInterval(update, options.update_interval * 1000 * 60 * 60)

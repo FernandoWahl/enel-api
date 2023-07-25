@@ -5,12 +5,22 @@ const axios = require('axios');
 module.exports = app => {
     let logger = app.middlewares.log.logger;
     let enelUtil = this;
-    
+
     this.firebaseLogin = (payload) => {
         return new Promise((resolve, reject) => {
             axios.post("https://portalhome.eneldistribuicaosp.com.br/api/firebase/login", payload)
                 .then(function (response) {
-                    resolve(response.data);
+                    if (response.data.token) {
+                        resolve(response.data);
+                    } else {
+                        if(response.data.E_USER_NOT_FOUND){
+                            reject({message: "E-mail não encontrado!"})
+                        } if(response.data.code) {
+                            reject({message: "Senha incorreta!"})
+                        } else {
+                           reject({message: "Erro indefinido no login!"})
+                        }
+                    }
                 })
                 .catch(function (error) {
                     logger.error("service:firebaseLogin:error", error?.message || error);
@@ -18,7 +28,7 @@ module.exports = app => {
                 });
         });
     };
-    
+
     this.customToken = (firebaseLoginResponse) => {
         return new Promise((resolve, reject) => {
             let payload = {
@@ -30,12 +40,12 @@ module.exports = app => {
                     resolve(response.data);
                 })
                 .catch(function (error) {
-                    logger.error("service:customToken:error",  error?.message || error);
+                    logger.error("service:customToken:error", error?.message || error);
                     reject(error?.message || error)
                 });
         });
     };
-    
+
     this.getloginv2 = (customTokenResponse) => {
         return new Promise((resolve, reject) => {
             let payload = {
@@ -65,7 +75,7 @@ module.exports = app => {
                 });
         });
     }
-    
+
     this.getloginv2Parser = (data, token) => {
         let returnData = {
             token: token,
@@ -78,11 +88,11 @@ module.exports = app => {
         }
         data.ET_INST.forEach(value => {
             returnData.installations.push({
-               address: capitalize.words(value.ENDERECO),
-               anlage: value.ANLAGE,
-               vertrag: value.VERTRAG,
-               einzdat: value.EINZDAT,
-               auszdat: value.AUSZDAT,
+                address: capitalize.words(value.ENDERECO),
+                anlage: value.ANLAGE,
+                vertrag: value.VERTRAG,
+                einzdat: value.EINZDAT,
+                auszdat: value.AUSZDAT,
 
             })
         });
