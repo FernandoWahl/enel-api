@@ -13,13 +13,13 @@ ports:
   40002/tcp: 40002
 host_network: true
 options:
-  email: "fernando.pepe@gmail.com"
-  password: "Fernando@"
-  instalation: "0204261614"
+  email: ""
+  password: ""
+  instalation: ""
   update_interval: 1000
   mqtt_host: "core-mosquitto"
-  mqtt_user: "moquito"
-  mqtt_password: "moquito12"
+  mqtt_user: ""
+  mqtt_password: ""
   loglevel: "debug"
 schema:
   email: str
