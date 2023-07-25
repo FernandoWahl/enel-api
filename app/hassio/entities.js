@@ -60,7 +60,9 @@ module.exports = app => {
     const monthAnalisys = createEntity('sensor', 'month_analisys', {
         icon: 'mdi:calendar-month',
         name: 'Valor do mês',
-        unit_of_measurement: 'R$'
+        device_class: 'monetary',
+        state_class: 'total_increasing',
+        unit_of_measurement: 'BRL',
     })
 
     const usageHistory = createEntity('sensor', 'usage_history', {
@@ -80,20 +82,27 @@ module.exports = app => {
 
     const valueTaxed = createEntity('sensor', 'value_taxed', {
         icon: 'mdi:calendar-alert',
-        name: 'Valor total das taxas'
+        name: 'Valor total das taxas',
+        device_class: 'monetary',
+        state_class: 'total_increasing',
+        unit_of_measurement: 'BRL',
     })
 
 
     const valueConsumption = createEntity('sensor', 'valueConsumption', {
         icon: 'mdi:calendar-month',
         name: 'Consumo de Energia (Por mês)',
-        unit_of_measurement: 'kWh'
+        unit_of_measurement: 'kWh',
+        device_class: 'energy',
+        state_class: 'total_increasing'
     })
 
     const valueConsumptionDay = createEntity('sensor', 'valueConsumptionDay', {
         icon: 'mdi:calendar-month',
         name: 'Consumo de Energia (Por dia)',
-        unit_of_measurement: 'kWh'
+        unit_of_measurement: 'kWh',
+        device_class: 'energy',
+        state_class: 'total_increasing'
     })
     
 	return {
