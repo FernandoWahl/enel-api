@@ -1,7 +1,7 @@
 {
-  "name": "arquivo",
-  "version": "1.6.6",
-  "description": "Exemplo de microserviço em node",
+  "name": "Integração  Api Enel com Home Assistant (Não oficial)",
+  "version": "1.0.0",
+  "description": "Addon para integrar no Home Assistant a api da rede de energia Enel",
   "main": "index.js",
   "scripts": {
     "start": "APP_PORT=40002 APP_DEBUG=true APP_PREFIX=/enel APP_LOG_LEVEL=debug APP_JWT_SECRET=37e92d6b44c931bdd9f8b6aef2f8f58d NODE_ENV=production node app/index.js",

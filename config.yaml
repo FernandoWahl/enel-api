@@ -24,7 +24,7 @@ options:
 schema:
   email: str
   password: str
-  instalation: str
+  instalation: "str?"
   update_interval: int
   mqtt_host: str
   mqtt_user: str
