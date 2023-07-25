@@ -16,7 +16,7 @@ options:
   email: ""
   password: ""
   instalation: ""
-  update_interval: 1000
+  update_interval: 1
   mqtt_host: "core-mosquitto"
   mqtt_user: ""
   mqtt_password: ""
