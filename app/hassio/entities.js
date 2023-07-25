@@ -2,7 +2,6 @@
 module.exports = app => {
     let options = app.hassio.config.options;
     let mqttClient = app.hassio.connections.mqtt;
-
     const deviceIdPrefix = `enel_${options.instalation}_`
 
     const haDevice = {
@@ -12,7 +11,7 @@ module.exports = app => {
         manufacturer: 'Enel Api',
         model: 'Enel Api Node',
         name: `Enel Api`,
-    
+
     }
 
     const getEntityTopic = (component, objectId, action) => `homeassistant/${component}/${deviceIdPrefix}${objectId}/${action}`
@@ -30,16 +29,17 @@ module.exports = app => {
             },
             device: haDevice
         }
-    
-        mqttClient.publish(getEntityTopic(component, objectId, 'config'), JSON.stringify(extendedConfig))
-    
-    
+
+        if (options.instalation) {
+            mqttClient.publish(getEntityTopic(component, objectId, 'config'), JSON.stringify(extendedConfig))
+        }
+
         const updateAvailability = (isAvailable) => {
             mqttClient.publish(getEntityTopic(component, objectId, 'availability'), isAvailable ? 'online' : 'offline')
         }
 
         updateAvailability(true)
-    
+
         const publishState = (state) => {
             mqttClient.publish(getEntityTopic(component, objectId, 'state'), String(state))
             updateAvailability(true)
@@ -104,8 +104,8 @@ module.exports = app => {
         device_class: 'energy',
         state_class: 'total_increasing'
     })
-    
-	return {
+
+    return {
         monthAnalisys,
         usageHistory,
         whiteTariff,
