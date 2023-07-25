@@ -1,4 +1,4 @@
 # https://developers.home-assistant.io/docs/add-ons/repository#repository-configuration
 name: Modulo Enel
-url: 'https://github.com/FernandoWahl/module_enel'
+url: 'https://github.com/FernandoWahl/enel-api'
 maintainer: Fernando Wahl <fernando@fwahl.org>
