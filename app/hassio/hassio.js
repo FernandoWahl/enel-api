@@ -1,7 +1,6 @@
 /** @param { import('express').Express } app */
 module.exports = app => {
     let options = app.hassio.config.options;
-    let device = app.hassio.device;
     let shareData = app.hassio.config.shareData;
     let logger = app.middlewares.log.logger;
     let mqttClient = app.hassio.connections.mqtt;
@@ -12,13 +11,14 @@ module.exports = app => {
 
         const update = (retries = 0) => {
             logger.debug(`hassio:update retries=${retries}`)
+            let device = app.hassio.device;
             enelApi.loginAndInstalation()
                 .then(result => shareData.setLogin(result))
                 .then(result => enelApi.getAllData(result.token))
                 .then(result => shareData.setData(result))
                 .then(() => device.updateParameters())
                 .catch(error => {
-                    if (error && error.instalation) {
+                    if (error?.instalation) {
                         console.log("")
                         console.log("-----------------------------------------------------------------------------------------------------------------")
                         console.log(`Nenhuma instalação selecionada, escolha entre a seguintes opções:`)
