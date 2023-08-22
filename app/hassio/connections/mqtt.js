@@ -3,12 +3,11 @@ const mqtt = require("mqtt")
 /** @param { import('express').Express} app */
 module.exports = app => {
     let logger = app.middlewares.log.logger;
-    let options = app.hassio.config.options;
 
     let mqttClient = mqtt.connect({
-        host: options.mqtt.host,
-        username: options.mqtt.user,
-        password: options.mqtt.password,
+        host: process.env.MQTT_HOST,
+        username: process.env.MQTT_USER,
+        password: process.env.MQTT_PASSWORD,
         resubscribe: true,
         keepalive: 10,
         clean: false,

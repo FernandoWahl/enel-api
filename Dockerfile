@@ -7,7 +7,8 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN apk add --no-cache \
     nodejs \
     npm \
-    git
+    git \
+    util-linux
 
 RUN npm config set strict-ssl false
 

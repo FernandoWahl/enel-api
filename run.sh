@@ -1,2 +1,13 @@
 #!/usr/bin/with-contenv bashio
-npm start
+set -e
+
+if ! bashio::services.available "mqtt"; then
+    bashio::log.error "No internal MQTT service not found"
+else
+    bashio::log.info "MQTT service found, fetching credentials ..."
+    MQTT_HOST=$(bashio::services mqtt "host")
+    MQTT_USER=$(bashio::services mqtt "username")
+    MQTT_PASSWORD=$(bashio::services mqtt "password")
+
+   MQTT_HOST=$MQTT_HOST MQTT_USER=$MQTT_USER MQTT_PASSWORD=$MQTT_PASSWORD APP_PORT=40002 APP_DEBUG=true APP_PREFIX=/enel APP_LOG_LEVEL=debug APP_JWT_SECRET=$(uuidgen) NODE_ENV=production node app/index.js
+fi

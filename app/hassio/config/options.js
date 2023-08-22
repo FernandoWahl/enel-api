@@ -9,12 +9,7 @@ module.exports = app => {
         email: optionsFromfile.email,
         password: optionsFromfile.password,
         instalation: optionsFromfile.instalation,
-        update_interval: optionsFromfile.update_interval,
-        mqtt: {
-            host: optionsFromfile.mqtt_host,
-            user: optionsFromfile.mqtt_user,
-            password: optionsFromfile.mqtt_password,
-        }
+        update_interval: optionsFromfile.update_interval
 
     }
     return options
