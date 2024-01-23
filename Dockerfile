@@ -14,6 +14,7 @@ RUN npm config set strict-ssl false
 
 COPY package*.json ./app/
 COPY nodemon.json ./app/
+COPY properties.json ./app/
 
 RUN cd /app && npm install --verbose --only=production --unsafe-perm
 
