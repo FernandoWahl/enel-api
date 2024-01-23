@@ -53,6 +53,7 @@ module.exports = app => {
                     resolve(response.data);
                 })
                 .catch(async function (error) {
+                    let fs = app.middlewares.utils.fs;
                     await fs.removeProperties("firebaseToken")
                     logger.error("service:customToken:error", error?.message || error);
                     reject(error?.message || error)
