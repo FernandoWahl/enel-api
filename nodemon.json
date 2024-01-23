@@ -3,7 +3,8 @@
     "ignore": [
       ".git",
       "swagger_output.json",
-      "node_modules/**/node_modules"
+      "node_modules/**/node_modules",
+      "properties.json"
     ],
     "verbose": false,
     "execMap": {

@@ -10,8 +10,7 @@ module.exports = app => {
         ],
         manufacturer: 'Enel Api',
         model: 'Enel Api Node',
-        name: `Enel Api`,
-
+        name: `Enel Api`
     }
 
     const getEntityTopic = (component, objectId, action) => `homeassistant/${component}/${deviceIdPrefix}${objectId}/${action}`

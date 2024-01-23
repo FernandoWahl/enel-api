@@ -22,7 +22,7 @@ module.exports = app => {
     this.valueTaxedParse = () => {
         let shareData = app.hassio.config.shareData;
         let historics =  shareData.getData().usagehistory.historic
-        let currentMonth = historics[historics.length - 1]
+        let currentMonth = historics[0]
         let barcode = shareData.getData().bills.find(b => b.belnr = currentMonth.belnr).barcode
 
         return {
@@ -42,7 +42,7 @@ module.exports = app => {
     this.invoiceStatusParse = () => {
         let shareData = app.hassio.config.shareData;
         let historics =  shareData.getData().usagehistory.historic
-        let currentMonth = historics[historics.length - 1]
+        let currentMonth = historics[0]
         return {
             attr: {
                 belnr: currentMonth.belnr,
@@ -78,7 +78,7 @@ module.exports = app => {
     this.valueConsumptionParse = () => {
         let shareData = app.hassio.config.shareData;
         let historics =  shareData.getData().usagehistory.historic
-        let currentMonth = historics[historics.length - 1]
+        let currentMonth = historics[0]
 
         return {
             attr: {
@@ -97,7 +97,7 @@ module.exports = app => {
     this.valueConsumptionDayParse = () => {
         let shareData = app.hassio.config.shareData;
         let historics =  shareData.getData().usagehistory.historic
-        let currentMonth = historics[historics.length - 1]
+        let currentMonth = historics[0]
 
         return {
             attr: {

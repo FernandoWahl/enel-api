@@ -4,30 +4,43 @@ const axios = require('axios');
 /** @param { import('express').Express } app */
 module.exports = app => {
     let logger = app.middlewares.log.logger;
+
     let enelUtil = this;
 
-    this.firebaseLogin = (payload) => {
-        return new Promise((resolve, reject) => {
+    async function loadProperties(name) {
+        try {
+            let fs = app.middlewares.utils.fs;
+            return fs.loadProperties(name)
+        } catch (error) {
+            return null
+        }
+    }
+
+    this.firebaseLogin = (payload) => new Promise(async (resolve, reject) => {
+        let token = await loadProperties("firebaseToken")
+        if (token) {
+            resolve({ token });
+        } else {
             axios.post("https://portalhome.eneldistribuicaosp.com.br/api/firebase/login", payload)
-                .then(function (response) {
+                .then(async function (response) {
                     if (response.data.token) {
+                        await fs.saveProperties("firebaseToken", response.data.token)
                         resolve(response.data);
-                    } else {
-                        if(response.data.E_USER_NOT_FOUND){
-                            reject({message: "E-mail não encontrado!"})
-                        } if(response.data.code) {
-                            reject({message: "Senha incorreta!"})
-                        } else {
-                           reject({message: "Erro indefinido no login!"})
-                        }
+                    } else if (response.data.E_USER_NOT_FOUND) {
+                        reject({ message: "E-mail não encontrado!" })
+                    } else if (response.data.code) {
+                        reject({ message: "Senha incorreta!" })
+                    } else if (response.data.includes("Request unsuccessful")) {
+                        let data = response.data;
+                        reject({ message: "Possível erro de reCAPTCHA por multiplas tentativas! Url: https://portalhome.eneldistribuicaosp.com.br" + data.substring(data.indexOf('id="main-iframe" src="') + 22, data.indexOf('" frameborder=0')) })
                     }
                 })
                 .catch(function (error) {
                     logger.error("service:firebaseLogin:error", error?.message || error);
                     reject(error?.message || error)
-                });
-        });
-    };
+                })
+        }
+    })
 
     this.customToken = (firebaseLoginResponse) => {
         return new Promise((resolve, reject) => {
@@ -39,7 +52,8 @@ module.exports = app => {
                 .then(function (response) {
                     resolve(response.data);
                 })
-                .catch(function (error) {
+                .catch(async function (error) {
+                    await fs.removeProperties("firebaseToken")
                     logger.error("service:customToken:error", error?.message || error);
                     reject(error?.message || error)
                 });

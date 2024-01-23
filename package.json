@@ -21,6 +21,7 @@
     "express-http-context": "^1.2.4",
     "express-validator": "^6.1.1",
     "express-winston": "^3.2.1",
+    "fs": "^0.0.1-security",
     "install": "^0.13.0",
     "jsonwebtoken": "^8.5.1",
     "moment": "^2.29.4",
