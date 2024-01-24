@@ -19,11 +19,13 @@ module.exports = app => {
     this.firebaseLogin = (payload) => new Promise(async (resolve, reject) => {
         let token = await loadProperties("firebaseToken")
         if (token) {
+            logger.debug("service:firebaseLogin:fromFile")
             resolve({ token });
         } else {
             axios.post("https://portalhome.eneldistribuicaosp.com.br/api/firebase/login", payload)
                 .then(async function (response) {
                     if (response.data.token) {
+                        let fs = app.middlewares.utils.fs;
                         await fs.saveProperties("firebaseToken", response.data.token)
                         resolve(response.data);
                     } else if (response.data.E_USER_NOT_FOUND) {
