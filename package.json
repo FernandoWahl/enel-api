@@ -1,6 +1,6 @@
 {
   "name": "enel-api",
-  "version": "1.0.1",
+  "version": "1.0.5",
   "description": "Addon para integrar no Home Assistant a api da rede de energia Enel",
   "main": "index.js",
   "scripts": {
@@ -13,6 +13,7 @@
   "dependencies": {
     "@tictactrip/axios-redis": "^2.0.0",
     "axios": "^1.4.0",
+    "axios-logger": "^2.7.1",
     "capitalize": "^2.0.4",
     "compression": "^1.7.4",
     "consign": "^0.1.6",

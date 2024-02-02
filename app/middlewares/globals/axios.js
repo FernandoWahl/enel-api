@@ -1,15 +1,12 @@
 const axios = require('axios');
+const AxiosLogger = require('axios-logger')
 
 /** @param { import('express').Express } app */
 module.exports = app => {
-    const axiosInstance = axios.create({});
-    axiosInstance.interceptors.request.use(config => {
-        return config;
-    }, error => Promise.reject(error));
-
-    axiosInstance.interceptors.response.use( response => {
-        return response;
-    }, error => Promise.reject(error));
-
+    const axiosInstance = axios.create({
+        withCredentials: true
+    });
+    axiosInstance.interceptors.request.use(AxiosLogger.requestLogger, AxiosLogger.errorLogger);
+    axiosInstance.interceptors.response.use(AxiosLogger.responseLogger, AxiosLogger.errorLogger);
     return axiosInstance
 };

@@ -1,6 +1,6 @@
 name: "Integração  Api Enel com Home Assistant (Não oficial)"
 description: "Addon para integrar no Home Assistant a api da rede de energia Enel"
-version: "1.0.4"
+version: "1.0.5"
 slug: "modulo_enel"
 init: false
 discovery:
@@ -23,7 +23,9 @@ options:
   mqtt_user: ""
   mqtt_password: ""
   instalation: ""
+  temp_token: ""
   update_interval: 1
+  debug: false
 schema:
   email: str
   password: str
@@ -31,4 +33,5 @@ schema:
   mqtt_user: str
   mqtt_password: str
   instalation: "str?"
+  temp_token: "str?"
   update_interval: int

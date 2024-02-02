@@ -1,9 +1,10 @@
 const capitalize = require('capitalize')
-const axios = require('axios');
+
 
 /** @param { import('express').Express } app */
 module.exports = app => {
     let logger = app.middlewares.log.logger;
+    let axios = app.middlewares.globals.axios;
 
     let enelUtil = this;
 
@@ -17,7 +18,7 @@ module.exports = app => {
     }
 
     this.firebaseLogin = (payload) => new Promise(async (resolve, reject) => {
-        let token = await loadProperties("firebaseToken")
+        let token = await loadProperties("token")
         if (token) {
             logger.debug("service:firebaseLogin:fromFile")
             resolve({ token });
@@ -26,7 +27,7 @@ module.exports = app => {
                 .then(async function (response) {
                     if (response.data.token) {
                         let fs = app.middlewares.utils.fs;
-                        await fs.saveProperties("firebaseToken", response.data.token)
+                        await fs.saveProperties("token", response.data.token)
                         resolve(response.data);
                     } else if (response.data.E_USER_NOT_FOUND) {
                         reject({ message: "E-mail não encontrado!" })
@@ -56,7 +57,7 @@ module.exports = app => {
                 })
                 .catch(async function (error) {
                     let fs = app.middlewares.utils.fs;
-                    await fs.removeProperties("firebaseToken")
+                    await fs.removeProperties("token")
                     logger.error("service:customToken:error", error?.message || error);
                     reject(error?.message || error)
                 });

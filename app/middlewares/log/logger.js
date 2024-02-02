@@ -40,6 +40,10 @@ module.exports = app => {
         exitOnError: false
     });
 
+    this.logger = function(){
+        return winstonLogger
+    }
+
     this.log = function(level, message, object = null) {
         winstonLogger.log(level, parseMessage(message, object));
     }

@@ -13,6 +13,7 @@ module.exports = app => {
         mqtt_password: optionsFromfile.mqtt_password,
         instalation: optionsFromfile.instalation,
         update_interval: optionsFromfile.update_interval,
+        temp_token: optionsFromfile.temp_token,
         server_only: false
     }
     return options

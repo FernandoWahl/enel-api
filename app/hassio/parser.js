@@ -89,7 +89,7 @@ module.exports = app => {
                 valueDays: currentMonth.valueDays,
                 dueDate: currentMonth.dueDate
             }, 
-            state: currentMonth.valueConsumptionDay
+            state: currentMonth.valueConsumption
         }
 
     }
@@ -108,7 +108,7 @@ module.exports = app => {
                 valueDays: currentMonth.valueDays,
                 dueDate: currentMonth.dueDate
             }, 
-            state: currentMonth.valueConsumption
+            state: currentMonth.valueConsumptionDay
         }
 
     }

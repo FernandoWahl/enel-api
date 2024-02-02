@@ -6,9 +6,15 @@ module.exports = app => {
     let mqttClient = app.hassio.connections.mqtt;
     let enelApi = app.hassio.enelApi;
 
-    mqttClient.on("connect", () => {
+    mqttClient.on("connect", async () => {
         logger.debug(`MQTT Connected success!`);
 
+        
+        if(options.temp_token){
+            logger.debug("Set temp token: ", options.temp_token)
+            let fs = app.middlewares.utils.fs;
+            await fs.saveProperties("token", options.temp_token)
+        }
         const update = (retries = 0) => {
             logger.debug(`hassio:update retries=${retries}`)
             let device = app.hassio.device;
