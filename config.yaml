@@ -14,7 +14,7 @@ arch:
   - armv7
   - i386
 ports:
-  40002/tcp: 40002
+  40003/tcp: 40003
 host_network: true
 options:
   email: ""

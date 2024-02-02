@@ -12,4 +12,4 @@ set -e
    
 # fi
 
-APP_PORT=40002 APP_DEBUG=true APP_PREFIX=/enel APP_LOG_LEVEL=debug APP_JWT_SECRET=$(uuidgen) NODE_ENV=production node app/index.js
+APP_PORT=40003 APP_DEBUG=true APP_PREFIX=/enel APP_LOG_LEVEL=debug APP_JWT_SECRET=$(uuidgen) NODE_ENV=production node app/index.js
