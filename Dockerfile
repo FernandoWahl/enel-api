@@ -21,7 +21,7 @@ RUN cd /app && npm install --verbose --only=production --unsafe-perm
 COPY app/ ./app/app/
 
 WORKDIR /app
-EXPOSE 40003
+EXPOSE 40002
 
 # Copy data for add-on
 COPY run.sh /
