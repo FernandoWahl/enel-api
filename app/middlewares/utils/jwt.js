@@ -11,7 +11,7 @@ module.exports = app => {
                     logger.error("utils:verifyJwt:error", err);
                     reject({ message: 'Falha ao autenticar o token.' })
                 }
-                resolve(decoded.result.token);
+                resolve(decoded.result);
             });
         });
     }

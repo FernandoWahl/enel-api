@@ -9,16 +9,18 @@ consign({
 		verbose: process.env.APP_DEBUG === 'true' || false,
 		locale: 'pt-br'
 	})
-    .include('./middlewares/log')
+	.include('./middlewares/log')
+    .then('./hassio/config')
     .then('./middlewares/globals')
-    .then('./middlewares/utils')
-	.then('./services')
-	.then('./controllers')
-	.then('./routes')
-	.then('./hassio/config')
-	.then('./hassio/connections')
-	.then('./hassio')
-	.into(app)
+	.then('./middlewares/utils')
+    .then('./hassio/connections')
+    .then('./services')
+    .then('./controllers')
+    .then('./routes/enel.js')
+	.then('./routes/auth.js')
+    .then('./routes/error.js')
+    .then('./hassio')
+    .into(app);
 
 let logger = app.middlewares.log.logger;
 

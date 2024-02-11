@@ -9,42 +9,43 @@ module.exports = app => {
     mqttClient.on("connect", async () => {
         logger.debug(`MQTT Connected success!`);
 
-        
         if(options.temp_token){
-            logger.debug("Set temp token: ", options.temp_token)
+            logger.debug("Set temp token:", options.temp_token)
             let fs = app.middlewares.utils.fs;
             await fs.saveProperties("token", options.temp_token)
         }
-        const update = (retries = 0) => {
-            logger.debug(`hassio:update retries=${retries}`)
-            let device = app.hassio.device;
-            enelApi.loginAndInstalation()
-                .then(result => shareData.setLogin(result))
-                .then(result => enelApi.getAllData(result.token))
-                .then(result => shareData.setData(result))
-                .then(() => device.updateParameters())
-                .catch(error => {
-                    if (error?.instalation) {
-                        console.log("")
-                        console.log("-----------------------------------------------------------------------------------------------------------------")
-                        console.log(`Nenhuma instalação selecionada, escolha entre a seguintes opções:`)
-                        console.log("-----------------------------------------------------------------------------------------------------------------")
-                        error.installations.forEach(installation => {
-                            console.log(`${installation.anlage} - Endereço: ${installation.address}`)
-                        });
-                        console.log("-----------------------------------------------------------------------------------------------------------------")
-                        return;
-                    }
-                    if (retries < 5) {
-                        return setTimeout(() => {
-                            update(retries + 1)
-                        }, 10000 * (retries + 1))
-                    } else {
-                        device.updateDeviceState(false)
-                    }
-                });
-
-        }
+        const update = async (retries = 0) => {
+            try {
+                logger.debug(`hassio:update retries=${retries}`);
+        
+                const device = app.hassio.device;
+                const loginResult = await enelApi.loginOrTokenAndInstalation();
+                await shareData.setLogin(loginResult);
+                
+                const allDataResult = await enelApi.getAllData(loginResult);
+                await shareData.setData(allDataResult);
+                
+                await device.updateParameters();
+            } catch (error) {
+                if (error?.instalation) {
+                    logger.warn("-----------------------------------------------------------------------------------------------------------------");
+                    logger.warn("Nenhuma instalação selecionada, escolha entre as seguintes opções:");
+                    logger.warn("-----------------------------------------------------------------------------------------------------------------");
+                    error.installations.forEach(installation => {
+                        logger.warn(`${installation.anlage} - Endereço: ${installation.address}`);
+                    });
+                    logger.warn("-----------------------------------------------------------------------------------------------------------------");
+                    return;
+                }
+                
+                if (retries < 5) {
+                    return setTimeout(() => update(retries + 1), 10000 * (retries + 1));
+                } else {
+                    app.hassio.device.updateDeviceState(false);
+                }
+            }
+        };
+        
         update()
         setInterval(update, options.update_interval * 1000 * 60 * 60)
     });

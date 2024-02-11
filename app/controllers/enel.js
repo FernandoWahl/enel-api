@@ -2,47 +2,42 @@ module.exports = app => {
     let jwt = app.middlewares.utils.jwt;
     let service = app.services.enel;
 
+    const handleRequest = async (req, res, serviceFunction, ...args) => {
+        try {
+            const token = req.headers['authorization'];
+            const result = await jwt.verifyJwt(token);
+            const serviceResult = await serviceFunction(result, ...args);
+            res.status(200).send(serviceResult);
+        } catch (error) {
+            res.status(400).send({"error": error?.message || error});
+        }
+    };
+
     this.changeinstallation = (req, res) => {
-        let token = req.headers['authorization'];
         let anlage = req.body.anlage;
         let vertrag = req.body.vertrag;
-        jwt.verifyJwt(token)
-            .then(result => service.changeinstallation(result, anlage, vertrag))
-            .then(result => res.status(200).send(result))
-            .catch(err => res.status(401).send(err));
+        handleRequest(req, res, service.changeinstallation, anlage, vertrag);
     }
 
     this.usagehistory = (req, res) => {
-        let token = req.headers['authorization'];
-        jwt.verifyJwt(token)
-            .then(result => service.usagehistory(result))
-            .then(result => res.status(200).send(result))
-            .catch(err => res.status(401).send(err));
+        handleRequest(req, res, service.usagehistory);
     }
 
     this.bills = (req, res) => {
-        let token = req.headers['authorization'];
-        jwt.verifyJwt(token)
-            .then(result => service.bills(result))
-            .then(result => res.status(200).send(result))
-            .catch(err => res.status(401).send(err));
+        handleRequest(req, res, service.bills);
     }
 
     this.getBill = (req, res) => {
-        let token = req.headers['authorization'];
         let id = req.params.id;
-        jwt.verifyJwt(token)
-            .then(result => service.getBill(result, id))
-            .then(result => res.status(200).send(result))
-            .catch(err => res.status(401).send(err));
+        handleRequest(req, res, service.getBill, id);
+    }
+
+    this.getAccountInfo = (req, res) => {
+        handleRequest(req, res, service.getAccountInfo);
     }
 
     this.monthAnalisys = (req, res) => {
-        let token = req.headers['authorization'];
-        jwt.verifyJwt(token)
-            .then(result => service.monthAnalisys(result))
-            .then(result => res.status(200).send(result))
-            .catch(err => res.status(401).send(err));
+        handleRequest(req, res, service.monthAnalisys);
     }
     
     return this
