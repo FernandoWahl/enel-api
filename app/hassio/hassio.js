@@ -27,6 +27,7 @@ module.exports = app => {
                 
                 await device.updateParameters();
             } catch (error) {
+                logger.error(`controller:error`, error?.message || error);
                 if (error?.instalation) {
                     logger.warn("-----------------------------------------------------------------------------------------------------------------");
                     logger.warn("Nenhuma instalação selecionada, escolha entre as seguintes opções:");

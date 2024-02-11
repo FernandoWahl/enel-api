@@ -48,7 +48,7 @@ module.exports = app => {
                 'address': response.data.E_ENDERECO,
             };
         } catch (error) {
-            logger.error("service:changeinstallation:error", error);
+            logger.error("service:changeinstallation:error", error?.message || error);
             throw error;
         }
     };
@@ -113,7 +113,7 @@ module.exports = app => {
 
             return returnData;
         } catch (error) {
-            logger.error("service:usagehistory:error", error);
+            logger.error("service:usagehistory:error", error?.message || error);
             throw error;
         }
     };
@@ -148,7 +148,7 @@ module.exports = app => {
                 }))
             }));
         } catch (error) {
-            logger.error("service:historyinfo:error", error);
+            logger.error("service:historyinfo:error", error?.message || error);
             throw error;
         }
     };
@@ -158,7 +158,7 @@ module.exports = app => {
             const accountInfo = await axios.post("https://www.googleapis.com/identitytoolkit/v3/relyingparty/getAccountInfo?key=AIzaSyAz4JxNF3rij5N0Y2gsATBV8amYMtC3Mzk", {"idToken": dataToken.idToken });
             return accountInfo.data.users[0];
         } catch (error) {
-            logger.error("service:bills:error", error);
+            logger.error("service:bills:error", error?.message || error);
             throw error;
         }
     };
@@ -189,7 +189,7 @@ module.exports = app => {
 
             return { bills: billsData };
         } catch (error) {
-            logger.error("service:bills:error", error);
+            logger.error("service:bills:error", error?.message || error);
             throw error;
         }
     };
@@ -251,7 +251,7 @@ module.exports = app => {
                 value: response.data.E_ATUAL_VALOR,
             };
         } catch (error) {
-            logger.error("service:monthAnalisys:error", error);
+            logger.error("service:monthAnalisys:error", error?.message || error);
             throw error;
         }
     };

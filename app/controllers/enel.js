@@ -9,7 +9,7 @@ module.exports = app => {
             const serviceResult = await serviceFunction(result, ...args);
             res.status(200).send(serviceResult);
         } catch (error) {
-            res.status(400).send({"error": error?.message || error});
+            res.status(401).send({"error": error?.message || error});
         }
     };
 
