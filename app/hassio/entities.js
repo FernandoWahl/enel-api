@@ -6,9 +6,10 @@ module.exports = app => {
 
     const haDevice = {
         identifiers: [
-            options.email
+            options.email,
+            `${options.instalation}`
         ],
-        manufacturer: 'Enel Api',
+        manufacturer: 'Enel',
         model: 'Enel Api Node',
         name: `Enel Api`
     }
