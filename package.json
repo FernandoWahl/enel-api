@@ -1,6 +1,6 @@
 {
   "name": "enel-api",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "description": "Addon para integrar no Home Assistant a api da rede de energia Enel",
   "main": "index.js",
   "scripts": {
